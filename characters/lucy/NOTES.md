@@ -9,6 +9,8 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 | --- | --- |
 | `personality.md` | Her default personality, as plain text in markdown |
 | `lines.md` | Her netrunner tags and the lines Capri says straight from the code, rewritten for Lucy |
+| `ART.md` | Everything her drawings must match, animation by animation |
+| `templates/` | Guide images to draw on, one per animation (made by `make-templates.ps1`) |
 | `sprites/` | *(later)* her animations, same file names and sizes as `assets/sprites` |
 | `voice/` | *(later)* her spoken greetings |
 | `icon.ico`, `icon.png` | *(later)* her icon |
