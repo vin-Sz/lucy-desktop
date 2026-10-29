@@ -7,7 +7,7 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 
 | File | What it is |
 | --- | --- |
-| `personality.md` | Her default personality, as plain text |
+| `personality.md` | Her default personality, as plain text in markdown |
 | `lines.md` | Her netrunner tags and the lines Capri says straight from the code, rewritten for Lucy |
 | `sprites/` | *(later)* her animations, same file names and sizes as `assets/sprites` |
 | `voice/` | *(later)* her spoken greetings |

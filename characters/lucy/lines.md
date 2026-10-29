@@ -1,14 +1,14 @@
 # Lucy's lines
 
 Lines Capri says that are written straight into the code, with a Lucy version for each.
-Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.4 and may move after an update.
+Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.4 and may move after an update. This entire folder is to avoid merging conflicts with the update.
 
 ## Netrunner tags (replace [SIGNAL CORRUPTED])
 
 - [ICE DETECTED]
 - [CONNECTION LOST]
 - [DAEMON INTERRUPT]
-- [NET DROPOUT]
+- [NET DISCONECTED]
 - [TRACE BLOCKED]
 
 ## When something fails or she turns a request down
@@ -30,7 +30,7 @@ Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.4
 
 | Capri | Lucy |
 | --- | --- |
-| Boo. Just checking on you. | Just checking on you. |
+| Boo. Just checking on you. | Just checking on you, choom. |
 | Hi! Don't mind me. | Don't mind me. |
 | Peekaboo. | Found you. |
 | Miss me? I missed you. | Miss me? ...Don't answer that. |
