@@ -7,7 +7,7 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 
 | File | What it is |
 | --- | --- |
-| `personality.md` | Her default personality, as plain text in markdown |
+| `personality.md` | Her personality, as plain text in markdown. It becomes `DefaultPersonality` in `app/Brain.cs` |
 | `lines.md` | Her netrunner tags and the lines Capri says straight from the code, rewritten for Lucy |
 | `ART.md` | Everything her drawings must match, animation by animation |
 | `templates/` | Guide images to draw on, one per animation (made by `make-templates.ps1`) |
@@ -20,18 +20,20 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 **Step 1: this folder** *(now)*
 - [x] Draft her personality
 - [x] Draft her lines and netrunner tags
-- [ ] Try the personality in the real app (Mainframe → Settings → Edit personality) and tweak it
+- [ ] Try the personality in the real app and tweak it. Since 0.7.6 there's no Edit personality button, so this means pasting it into `DefaultPersonality` in `app/Brain.cs` and building
 
-**Wait for the big capri-desktop patch, then sync** before changing any app code.
+- [x] Sync the big capri-desktop patch (0.7.6, 30 Oct) before changing any app code
 
 **Step 2: art and voice**
 - [ ] Build script: build with `-Character lucy`, taking each file from this folder when it's there and Capri's otherwise, so sprites can be swapped one at a time
-- [ ] Check the sprite list and sizes again after the patch (it adds new animations)
+- [x] Check the sprite list and sizes again after the patch: the perch is new (60 frames, narrower frames) and `perch_music` was added. `ART.md` and the templates are updated
 - [ ] Lucy's art, voice and icon
 
 **Step 3: text in the app**
 - [ ] A new `app/Character.cs` holding her personality and lines, with small one-line changes in `Brain.cs` pointing at it
-- [ ] Update the personality fingerprints (`DefaultStamp` in `Brain.cs`, `todaysPersona` in `Capri.cs`) and any tests that check lines word for word
+- [ ] Update the personality checks in the smoke test (`Capri.cs`): `todaysPersona` (a SHA-256 of the whole prompt) and its length, 5098, next to it, and the check a little before it that looks for Capri phrases like "a playful chaos gremlin". Also any tests that check lines word for word
+- [ ] Leave `Safety` and `Machinery` in `Brain.cs` as they are: Lachy asks forks to keep her safety rules. `Safety` has a little Capri wording ("your chaos lives on the screen"); decide later whether that's fine for Lucy or worth asking Lachy about
+- [ ] "Hey Capri" → "Hey Lucy" (see `lines.md`)
 - [ ] Rename what you see from Capri to Lucy (window titles, menus, installer, messages), but not the internal code names
 
 **Later, maybe**
@@ -40,6 +42,7 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 
 ## Notes
 
-- **Sprites** (capri-desktop 0.7.4): every animation is one row of frames, 384 px tall. Standing frames are 240 px wide; sitting (`perch_*`) frames are 384 px wide. Frame counts are set in `app/Capri.cs` (search `new Clip(`).
+- **Sprites** (capri-desktop 0.7.6): every animation is one row of frames, 384 px tall. Standing frames are 240 px wide; sitting (`perch_*`) frames are 196 or 288 px wide (see `ART.md`). Frame counts are set in `app/Capri.cs` (search `new Clip(`).
+- **Personality** (since 0.7.6): there's no `personality.md` in the app and no Edit personality button any more. Her prompt is `DefaultPersonality` + `Safety` + `Machinery` in `app/Brain.cs`, all fixed in code, on Windows and on Mac/Linux.
 - **How the art gets in:** `ci/build-windows.ps1` packs `assets/sprites`, `assets/voice` and the icon into the .exe when building. The app doesn't read them from a folder.
 - **Syncing:** commit before syncing, and sync soon after each capri-desktop release while the differences are small. If the README conflicts, keep ours.

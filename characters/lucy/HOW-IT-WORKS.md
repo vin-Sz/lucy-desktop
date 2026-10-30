@@ -1,6 +1,6 @@
 # How the app works
 
-A tour of capri-desktop's code, written while planning Lucy. Line numbers are from capri-desktop 0.7.4 and move with updates, so search by **name** (Ctrl+F), not by number.
+A tour of capri-desktop's code, written while planning Lucy. Line numbers are from capri-desktop 0.7.4 (the parts touched by 0.7.6 are updated) and move with updates, so search by **name** (Ctrl+F), not by number.
 
 ## The basics
 
@@ -14,11 +14,11 @@ A tour of capri-desktop's code, written while planning Lucy. Line numbers are fr
 | File | What it's for |
 |---|---|
 | `app/Capri.cs` | **The heart.** `Program.Main` (where the app starts), `Companion` (her: the window, movement, animations, menus, glue for everything), `Updater`, plus the self-test (the huge part at the end) |
-| `app/Brain.cs` | **Her mind.** Talks to the AI model (local, NVIDIA, ChatGPT, Claude…), holds her personality and memory, and `Safety`, the filter for things she won't do |
+| `app/Brain.cs` | **Her mind.** Talks to the AI model (local, NVIDIA, ChatGPT, Claude…), holds her personality, `Safety` (her safety rules, sent to the AI with her personality) and memory |
 | `app/Talk.cs` | **What you see besides her:** speech bubble (`SpeechBox`), typing box (`TypeBox`), effects like the startup tendrils (`Tear`), her task panel. `Look` holds colors and fonts |
 | `app/Hands.cs` | **Simple jobs:** opening apps, music, closing windows, recognizing "open Spotify" |
 | `app/Computer.cs` | **Multi-step jobs** with her own cursor: looking at the screen, clicking, typing |
-| `app/Voice.cs` | **Her voice:** ElevenLabs and the free Kokoro voice |
+| `app/Voice.cs` | **Her voice:** the free Kokoro voice, plus (since 0.7.6) the HD voice, your own voice model, and cloud voices (Fish Audio, ElevenLabs, OpenAI) |
 | `app/Ears.cs`, `Dictation.cs`, `Agent.cs` | **Hearing you:** mic, speech recognition, ElevenLabs voice chat. `Ears.cs` also listens for the music beat for dancing |
 | `app/Mainframe.cs` | **The settings window** ("Capri Mainframe") |
 | `app/Ledges.cs` | Finding window edges and icons she can sit on |
@@ -32,15 +32,14 @@ A tour of capri-desktop's code, written while planning Lucy. Line numbers are fr
 1. **`TypeBox.Submit`** (Talk.cs): you press Enter. The box empties and fires its `Submitted` *event*, which is like ringing a bell for whoever is listening.
 2. **`Companion.Hear`** (Capri.cs) is listening, hooked up with `typer.Submitted += Hear;`. It:
    - cuts the text at 240 characters,
-   - runs `Safety.Stops`, which blocks forbidden topics right away with a canned line,
    - has no brain set up? Then it replies `Brain.Offline`,
    - otherwise starts `brain.Ask` **in the background** so she keeps animating while she thinks.
 3. **`Brain.Ask`** (Brain.cs) builds the message for the AI:
-   - **system message** = her personality + memory + current time (+ instructions for jobs, if those are on). Her personality comes from `personality.md` or `DefaultPersonality`.
+   - **system message** = her personality + memory + current time (+ instructions for jobs, if those are on). Her personality is `DefaultPersonality` + `Safety` + `Machinery` (`Brain.Persona`), all fixed in code since 0.7.6. Before that it could come from `personality.md`, which is gone now.
    - **history** = your recent chat.
    - **your message**.
    - It also checks whether you're asking for a job (`Hands.Heard`, `Hands.Wants`). If so, the job runs and she replies about it.
-4. **`Companion.Answer`** (Capri.cs) gets the reply. It picks a voice (ElevenLabs, free voice or silent), makes the audio in the background, then shows the bubble and plays the audio together.
+4. **`Companion.Answer`** (Capri.cs) gets the reply. It picks a voice (one of her VOICE options, or silent), makes the audio in the background, then shows the bubble and plays the audio together.
 
 So **her personality is just text sent along with every message**. The AI model does the actual "being Lucy". That's why changing the personality text is so powerful.
 

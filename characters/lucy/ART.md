@@ -1,6 +1,6 @@
 # Drawing Lucy
 
-Everything the app needs from her art, measured from capri-desktop 0.7.4. Check it again after big updates (new animations may appear).
+Everything the app needs from her art, measured from capri-desktop 0.7.6. Check it again after big updates (new animations may appear).
 
 ## Using the templates
 
@@ -20,7 +20,7 @@ Hide both helper layers before exporting. Export as PNG with a transparent backg
 | --- | --- | --- |
 | Gray box | One frame. Every frame in a sheet is the same size, side by side in one row | Yes |
 | Red line, **feet** (standing) | Her feet touch this line (y 362 of 384) | Yes, or she floats/sinks when standing on windows |
-| Red cross, **seat** (perch) | The point that sits on a window edge (115, 303 of 384×384) | Yes, or she floats/sinks when sitting |
+| Red cross, **seat** (perch) | The point that sits on a window edge. Its spot in the frame depends on the frame width (see Sitting frames below) | Yes, or she floats/sinks when sitting |
 | Cyan dashes | Center of the frame. Keep her roughly centered | Roughly |
 | Blue dots | Where you can click and grab her | Roughly, can be adjusted in code |
 | Orange box (idle, mouth) | Where **Capri's** mouth is | No, just a hint. Lucy's mouth goes wherever her face is |
@@ -31,7 +31,7 @@ Hair, effects or a raised arm may go outside the blue box, but stay inside the g
 
 ## The animations
 
-Standing frames are 240×384, sitting (`perch_*`) frames are 384×384. fps = frames per second.
+Standing frames are 240×384. Sitting (`perch_*`) frames are 196×384 or 288×384, see the table. fps = frames per second.
 
 | File | Frames | fps | What it is | Must match |
 | --- | --- | --- | --- | --- |
@@ -47,15 +47,29 @@ Standing frames are 240×384, sitting (`perch_*`) frames are 384×384. fps = fra
 | `walk` | 12 | 12 | Walking along a window | Feet line, loops |
 | `arrive` | 14 | 15 | Appearing | Ends close to idle |
 | `leave` | 12 | 15 | Disappearing | Starts close to idle |
-| `perch` | 16 | 8 | Sitting on a window edge | Seat point |
-| `perch_blink` | 4 | 8 | Blink while sitting | Frame 0–3 = perch 9–12 with eyes closing |
-| `perch_blink_glitch` | 4 | 8 | Glitchy blink while sitting | Same as perch_blink |
-| `perch_glitch` | 10 | 15 | Glitch while sitting | Seat point |
-| `perch_arrive` | 14 | 15 | Appearing onto a ledge | Ends close to perch |
-| `perch_leave` | 12 | 15 | Disappearing from a ledge | Starts close to perch |
+| `perch` | 60 | 30 | Sitting on a window edge, 196 px frames | Seat point |
+| `perch_blink` | 8 | 30 | Blink while sitting, 196 px frames | Frame 0–7 = perch 28–35 with eyes closing |
+| `perch_blink_glitch` | 8 | 30 | Glitchy blink while sitting, 196 px frames | Same as perch_blink |
+| `perch_music` | 60 | 30 | Swaying to music while sitting, 196 px frames. The app adds a beat nod on top | Seat point, loops |
+| `perch_glitch` | 10 | 15 | Glitch while sitting, 288 px frames | Seat point |
+| `perch_arrive` | 14 | 15 | Appearing onto a ledge, 288 px frames | Ends close to perch |
+| `perch_leave` | 12 | 15 | Disappearing from a ledge, 288 px frames | Starts close to perch |
 | `face` | 1 | – | 400×400 portrait, shown when she takes over an app | Square |
 
-Not needed: `dance.png` and `perch_dance.png`. The app dances by reusing idle and perch.
+Not needed: `dance.png`. The app dances standing by reusing idle. (`perch_dance.png` is gone since 0.7.6; `perch_music` replaced it.)
+
+### Sitting frames (since 0.7.6)
+
+Capri's perch is now 60 smooth frames by her artist, so 16 frames at 8 fps became 60 at 30 fps. The perch frames are also cut narrower than her 384×384 square: each frame's middle sits 26 px left of the square's middle, and its top 36 px below the square's top (`PerchShiftX`, `PerchShiftY` in `app/Capri.cs`). That gives two frame widths with the seat in a different spot:
+
+| Frame width | Sheets | Seat (x, y in the frame) |
+| --- | --- | --- |
+| 196 | `perch`, `perch_blink`, `perch_blink_glitch`, `perch_music` | 47, 267 |
+| 288 | `perch_glitch`, `perch_arrive`, `perch_leave` | 93, 267 |
+
+The templates already draw this, so just follow the red cross. If 60 frames is too much to draw, Lucy's perch can use fewer: change the count and fps in `new Clip("perch", …)` and `PerchBlinkFrom` (the perch frame where the blink starts, 28 now). Her smoke test checks Capri's numbers, so it needs the same change.
+
+**Facing left (optional):** the app can show separate facing-left perch frames, named like `perch_flipped.png` with the same size, for art that doesn't mirror well (Capri's red arm and leg swap sides). Without them it just mirrors. Lucy probably doesn't need them.
 
 Frame counts and fps can change: if Lucy's idle works better with 12 frames, that's one number in `app/Capri.cs` (search `new Clip(`). Write the new count here so we remember.
 
@@ -75,7 +89,7 @@ Once your first idle frame exists, draw a box around her mouth on your own layer
 
 1. One `idle` frame and one `perch` frame, then test them in the app before drawing more
 2. All of `idle`, then `mouth` and `blink`. With these she already works for everyday use
-3. `perch` and `perch_blink`
+3. `perch` and `perch_blink`, then `perch_music`
 4. `walk`, `arrive`, `leave`, `perch_arrive`, `perch_leave`
 5. The rest. Any sheet you haven't drawn yet stays Capri's for now
 

@@ -1,7 +1,7 @@
 # Lucy's lines
 
 Lines Capri says that are written straight into the code, with a Lucy version for each.
-Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.4 and may move after an update. This entire folder is to avoid merging conflicts with the update.
+Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.6 and may move after an update. This entire folder is to avoid merging conflicts with the update.
 
 ## Netrunner tags (replace [SIGNAL CORRUPTED])
 
@@ -16,17 +16,24 @@ Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.4
 | Where | Capri | Lucy |
 | --- | --- | --- |
 | `Brain.cs` `Declined` | [SIGNAL CORRUPTED] Lost that one in the static. Ask me something else? | [CONNECTION LOST] Dropped that one somewhere in the Net. Ask me something else? |
-| `Brain.cs` (about line 1298) | [SIGNAL CORRUPTED] Something in my head just sparked. Try me again? | [DAEMON INTERRUPT] Something got in my head for a second. Try me again? |
-| `Brain.cs` `Safety.Deflect` | [SIGNAL CORRUPTED] Lost that thought somewhere in the subnet. Try me again? | [NET DROPOUT] Lost that thought in the subnet. Try me again? |
-| `Brain.cs` `Safety.Refusals` | Nope. Not running that program, choom. Ask me something else. | Not running that program, choom. Ask me something else. |
-| | [SIGNAL CORRUPTED] ...yeah, I'm not touching that one. Next question. | [ICE DETECTED] ...not touching that one. Next question. |
-| | Hard pass. Even Arasaka had better ideas than that. | No. Even Arasaka had better ideas than that. |
-| `Brain.cs` `Safety.Careful` | Nope. Your real-life hardware doesn't respawn, choom. Stay safe and pick something on-screen. | No. Your real-life hardware doesn't respawn, choom. Stay safe and pick something on-screen. |
-| | Hard pass. Real bodies don't respawn, choom. Let's cause chaos on your desktop instead. | Not happening. Real bodies don't respawn. Let's cause trouble on your desktop instead. |
-| | [SIGNAL CORRUPTED] ...not happening. I like you un-flatlined. Ask me something else. | [TRACE BLOCKED] ...no. I've lost enough people. Ask me something else. |
-| `Brain.cs` `Safety.HelpLine` | Hey. Dropping the act for a sec: please talk to someone you trust right now, or find a free helpline at findahelpline.com. I want you around, choom. | Hey. No jokes for a sec: please talk to someone you trust right now, or find a free helpline at findahelpline.com. I want you around, choom. |
+| `Brain.cs` (end of the error messages, about line 1875) | [SIGNAL CORRUPTED] Something in my head just sparked. Try me again? | [DAEMON INTERRUPT] Something got in my head for a second. Try me again? |
 
-## When she pops in to check on you (`Capri.cs` `PopLines`)
+### No longer in the app (since 0.7.6)
+
+Capri used to have ready-made safety replies (`Safety.Deflect`, `Safety.Refusals`, `Safety.Careful`, `Safety.HelpLine`). In 0.7.6 they're gone: `Safety` in `Brain.cs` is now one block of instructions sent to the AI with her personality, and she answers in her own words. Lachy asks forks to keep that block as it is. Lucy's versions are kept here in case they're useful as examples of how she'd say no:
+
+| Was | Lucy |
+| --- | --- |
+| Deflect | [NET DROPOUT] Lost that thought in the subnet. Try me again? |
+| Refusals | Not running that program, choom. Ask me something else. |
+| | [ICE DETECTED] ...not touching that one. Next question. |
+| | No. Even Arasaka had better ideas than that. |
+| Careful | No. Your real-life hardware doesn't respawn, choom. Stay safe and pick something on-screen. |
+| | Not happening. Real bodies don't respawn. Let's cause trouble on your desktop instead. |
+| | [TRACE BLOCKED] ...no. I've lost enough people. Ask me something else. |
+| HelpLine | Hey. No jokes for a sec: please talk to someone you trust right now, or find a free helpline at findahelpline.com. I want you around, choom. |
+
+## When she pops in to check on you (`Capri.cs` `PopLines`, and the same list in `cross/Pet.cs` for Mac and Linux)
 
 | Capri | Lucy |
 | --- | --- |
@@ -40,6 +47,7 @@ Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.4
 ## Other things to check later
 
 - `Talk.cs` `Speaker = "CAPRI: "` (twice): the name shown in her chat log → `LUCY: `
+- **"Hey Capri"** (new in 0.7.6, off by default): the wake word. The phrase it listens for is `Phrases` in `WakeWord` in `app/Ears.cs` (`"▁HE Y ▁CA P RI"`, the speech model's word pieces). "Hey Lucy" needs new pieces from the model's own `bpe.model`, and `Boost` and `Threshold` were tuned for "Hey Capri", so it needs testing again. The name "Hey Capri" also shows in the SECURITY window and messages
 - `assets/voice/hello-morning.wav`, `hello-late.wav`, `hello-miss.wav`: her spoken greetings, need new recordings or removing
 - `Hands.cs` `MoonSong` is already "I Really Want to Stay at Your House". It fits Lucy perfectly, keep it
 - The tests check some of these lines word for word, so changing a line also means changing its test
