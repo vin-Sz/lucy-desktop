@@ -2603,8 +2603,10 @@ namespace CapriDesktop
                 float tail = 16 * s;
                 int columns = Fit(Speaker + (Reply ?? ""));
                 List<string> lines = Look.Wrap(Speaker + (Reply ?? ""), columns);
+                // Her own remarks have no prompt, so nothing sits above her words.
+                int above = string.IsNullOrEmpty(Prompt) ? 0 : 1;
                 float panelWidth = 24 * s + columns * cw + 14 * s;
-                float panelHeight = 13 * s + line * (1 + lines.Count) + 10 * s;
+                float panelHeight = 13 * s + line * (above + lines.Count) + 10 * s;
                 int width = (int)Math.Ceiling(panelWidth + margin * 2);
                 int height = (int)Math.Ceiling(top + panelHeight + tail + 4 * s);
                 bool below = head.Y - height < area.Top;
@@ -2633,10 +2635,13 @@ namespace CapriDesktop
                     using (Brush red = new SolidBrush(Look.Red)) graphics.FillRectangle(red, panel.Left + 10 * s, panel.Top + 13 * s, 3 * s, panel.Height - 26 * s);
                     float x = panel.Left + 24 * s;
                     float row2 = panel.Top + 12 * s;
-                    string you = Prompt + (Heard ?? "");
-                    if (Look.Cells(you) > columns) you = Look.Cut(you, columns - 3) + "...";
-                    using (Brush dim = new SolidBrush(Look.Dim)) Look.Draw(graphics, you, heard, dim, x, row2);
-                    row2 += line;
+                    if (above > 0)
+                    {
+                        string you = Prompt + (Heard ?? "");
+                        if (Look.Cells(you) > columns) you = Look.Cut(you, columns - 3) + "...";
+                        using (Brush dim = new SolidBrush(Look.Dim)) Look.Draw(graphics, you, heard, dim, x, row2);
+                        row2 += line;
+                    }
                     int[] takes = Look.Takes(lines, Speaker + (Reply ?? ""), Speaker.Length + (State == TalkState.Thinking ? (Reply ?? "").Length : Math.Max(0, Revealed)));
                     PointF caret = new PointF(x, row2);
                     using (Brush red = new SolidBrush(Look.Red))
@@ -2708,6 +2713,8 @@ namespace CapriDesktop
         }
     }
 
+    // Her type box, in her Mainframe's look: a dark well cut at the corners with a red rim and hot red strokes over the two
+    // big corners, a red tick, YOU in rose and what they type in white. It opens where her speech box would.
     internal sealed class TypeBox : Form
     {
         internal event Action<string> Submitted;
@@ -2715,7 +2722,7 @@ namespace CapriDesktop
         private readonly Label prompt;
         private float scale = 1;
         private Font typed;
-        private Font italic;
+        private Font label;
 
         internal TypeBox()
         {
@@ -2725,17 +2732,21 @@ namespace CapriDesktop
             StartPosition = FormStartPosition.Manual;
             TopMost = true;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Look.Panel;
+            BackColor = Neon.Well;
+            DoubleBuffered = true;
             prompt = new Label();
-            prompt.Text = "> you:";
-            prompt.ForeColor = Look.Dim;
-            prompt.BackColor = Look.Panel;
+            prompt.Text = "YOU";
+            prompt.ForeColor = Neon.Rose;
+            prompt.BackColor = Neon.Well;
             prompt.AutoSize = true;
+            prompt.UseMnemonic = false;
             input = new TextBox();
             input.BorderStyle = BorderStyle.None;
-            input.BackColor = Look.Panel;
-            input.ForeColor = Look.Ink;
+            input.BackColor = Neon.Well;
+            input.ForeColor = Neon.White;
             input.MaxLength = 240;
+            input.AccessibleName = Text;
+            input.HandleCreated += delegate { Native.SendMessage(input.Handle, 0x1501, new IntPtr(1), "Say something to Capri"); };
             input.KeyDown += delegate(object sender, KeyEventArgs key)
             {
                 if (key.KeyCode == Keys.Enter) { key.SuppressKeyPress = true; Submit(); }
@@ -2754,12 +2765,12 @@ namespace CapriDesktop
             {
                 scale = s;
                 Font oldTyped = typed;
-                Font oldItalic = italic;
-                typed = Look.Mono(14 * s, FontStyle.Regular);
-                italic = Look.Mono(14 * s, FontStyle.Italic);
+                Font oldLabel = label;
+                typed = Neon.Type(15 * s, false, GraphicsUnit.Pixel);
+                label = Neon.Type(12.5f * s, true, GraphicsUnit.Pixel);
                 input.Font = typed;
-                prompt.Font = italic;
-                if (oldTyped != null) { oldTyped.Dispose(); oldItalic.Dispose(); }
+                prompt.Font = label;
+                if (oldTyped != null) { oldTyped.Dispose(); oldLabel.Dispose(); }
             }
             int width = (int)SpeechBox.PanelWidth(s);
             int height = (int)(44 * s);
@@ -2769,9 +2780,9 @@ namespace CapriDesktop
             Bounds = new Rectangle(left, top, width, height);
             if (!above.IsEmpty) Follow(above, area);
             prompt.Location = new Point((int)(24 * s), (height - prompt.PreferredHeight) / 2);
-            input.Location = new Point(prompt.Right + (int)(6 * s), (height - input.PreferredHeight) / 2 + (int)s);
-            input.Width = width - input.Left - (int)(14 * s);
-            using (GraphicsPath shape = Look.Plate(new RectangleF(0, 0, width, height), 10 * s, -1, height / 2f, 0, true)) Region = new Region(shape);
+            input.Location = new Point(prompt.Right + (int)(10 * s), (height - input.PreferredHeight) / 2 + (int)s);
+            input.Width = width - input.Left - (int)(16 * s);
+            Neon.Clip(this, 10 * s, 4 * s);
             Show();
             Activate();
             input.Focus();
@@ -2800,11 +2811,8 @@ namespace CapriDesktop
         {
             base.OnPaint(e);
             float s = scale;
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using (GraphicsPath edge = Look.Plate(new RectangleF(s, s, Width - 2 * s - 1, Height - 2 * s - 1), 10 * s, -1, Height / 2f, 0, true))
-            using (Pen cyan = new Pen(Look.Cyan, 2 * s))
-                e.Graphics.DrawPath(cyan, edge);
-            using (Brush red = new SolidBrush(Look.Red)) e.Graphics.FillRectangle(red, 10 * s, 10 * s, 3 * s, Height - 20 * s);
+            Neon.Frame(e.Graphics, Size, s, 10 * s, 4 * s, 36 * s, 10 * s);
+            using (Brush tick = new SolidBrush(Neon.Hot)) e.Graphics.FillRectangle(tick, 12 * s, 12 * s, 2.5f * s, Height - 24 * s);
         }
     }
 }
