@@ -33,6 +33,7 @@ I'm using [Claude](https://claude.ai) (Anthropic's AI) to help plan this fork an
 ## Credits and licence
 
 - **Original project:** [capri-desktop](https://github.com/lachydotmcg/capri-desktop) by lachydotmcg. All credit for the app goes there. Join their [Discord](https://discord.gg/F4fDHfGtFk) for the original.
+- **Capri's art and animations:** by Capri's artist, who prefers to stay private. Until Lucy's own art replaces them, the sprites here are theirs.
 - **Licence:** PolyForm Noncommercial 1.0.0, same as the original. Free for anything non-commercial; no selling it or putting it in paid products. Full terms in [LICENSE.md](LICENSE.md).
 - **Lucy** and *Cyberpunk: Edgerunners* belong to CD Projekt Red and Studio Trigger. This is an unofficial, non-commercial fan project, not affiliated with them.
-- Font: Share Tech Mono (OFL). Free voice: Kokoro-82M (Apache-2.0). Her own ears: NVIDIA Parakeet TDT 0.6B [v2](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2) and [v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) (CC-BY-4.0), run with [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) (Apache-2.0).
+- Font: Share Tech Mono (OFL). Free voice: Kokoro-82M (Apache-2.0). Her own ears: NVIDIA Parakeet TDT 0.6B [v2](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2) and [v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) (CC-BY-4.0), run with [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) (Apache-2.0). HD voice: [Qwen3-TTS 1.7B](https://github.com/QwenLM/Qwen3-TTS) (Apache-2.0), run with [qwentts.cpp](https://github.com/ServeurpersoCom/qwentts.cpp) (MIT).
