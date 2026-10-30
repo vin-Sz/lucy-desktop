@@ -35,7 +35,7 @@ A tour of capri-desktop's code, written while planning Lucy. Line numbers are fr
    - has no brain set up? Then it replies `Brain.Offline`,
    - otherwise starts `brain.Ask` **in the background** so she keeps animating while she thinks.
 3. **`Brain.Ask`** (Brain.cs) builds the message for the AI:
-   - **system message** = her personality + memory + current time (+ instructions for jobs, if those are on). Her personality is `DefaultPersonality` + `Safety` + `Machinery` (`Brain.Persona`), all fixed in code since 0.7.6. Before that it could come from `personality.md`, which is gone now.
+   - **system message** = her personality + memory + current time (+ instructions for jobs, if those are on). Her personality is `personality.md` + `Safety` + `Machinery` (`Brain.Persona`). `personality.md` sits next to `me.md`, starts as `DefaultPersonality` and can be edited from her settings; `Safety` and `Machinery` are fixed in code and always come after it. (Capri 0.7.6 dropped the file; Lucy brings it back.)
    - **history** = your recent chat.
    - **your message**.
    - It also checks whether you're asking for a job (`Hands.Heard`, `Hands.Wants`). If so, the job runs and she replies about it.

@@ -20,7 +20,8 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 **Step 1: this folder** *(now)*
 - [x] Draft her personality
 - [x] Draft her lines and netrunner tags
-- [ ] Try the personality in the real app and tweak it. Since 0.7.6 there's no Edit personality button, so this means pasting it into `DefaultPersonality` in `app/Brain.cs` and building
+- [x] Bring back an editable `personality.md` (Capri 0.7.6 dropped it), with `Safety` still fixed in code after it
+- [ ] Try the personality in the real app and tweak it: YOU > Personality > Edit personality.md, paste this folder's `personality.md` in and save
 
 - [x] Sync the big capri-desktop patch (0.7.6, 30 Oct) before changing any app code
 - [x] Sync capri-desktop 0.7.7 (30 Oct): lie-down set, perch talking frames, Halloween lines, donation lines
@@ -46,7 +47,8 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 ## Notes
 
 - **Sprites** (capri-desktop 0.7.7): every animation is one row of frames, 384 px tall except lying down (250 px). Standing frames are 240 px wide; sitting (`perch_*`) frames are 196 or 288 px wide; lying (`laydown_*`) frames are 372 or 440 px wide (see `ART.md`). Frame counts are set in `app/Capri.cs` (search `new Clip(`).
-- **Personality** (since 0.7.6): there's no `personality.md` in the app and no Edit personality button any more. Her prompt is `DefaultPersonality` + `Safety` + `Machinery` in `app/Brain.cs`, all fixed in code, on Windows and on Mac/Linux.
+- **Personality:** Capri 0.7.6 fixed her personality in code, because her safety lines had moved into `personality.md` in 0.7.5 and anyone could delete them there. Lucy brings the file back (next to `me.md`, with a Personality menu in the YOU band on Windows and two settings menu items on Mac/Linux), but her prompt is `personality.md` + `Safety` + `Machinery`: the safety lines stay fixed in code after whatever the file says. A missing, empty or unreadable file gives `DefaultPersonality`. When `DefaultPersonality` changes, the smoke test asks for its new `DefaultStamp` and the old stamp goes into `Retired`, so untouched copies of the file move to the new default while edits are kept.
+- **Upstream merges:** this touches the same spots as Lachy's code (`Brain.cs` near `Persona`, the YOU band in `Mainframe.cs`, the personality check in the smoke test), so a capri-desktop sync that changes those may conflict and need merging by hand.
 - **How the art gets in:** `ci/build-windows.ps1` packs `assets/sprites`, `assets/voice` and the icon into the .exe when building. The app doesn't read them from a folder.
 - **Syncing:** the Sync upstream Action checks capri-desktop every 6 hours and merges it into `main` on its own. If the merge conflicts (usually the README), it opens an issue instead; then merge by hand, keeping our README. After a sync, check `ART.md`, `lines.md` and this file against what changed.
 - **Testing:** the smoke test (`powershell -ExecutionPolicy Bypass -File ciuild-windows.ps1 -SmokeTest -SmokeSeconds 180`) runs hundreds of checks on the real app and stops at the first failure. It's how we'll know Lucy's changes didn't break anything, but three things get in the way today (checked 30 Oct, 0.7.7):

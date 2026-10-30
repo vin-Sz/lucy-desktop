@@ -208,6 +208,9 @@ namespace CapriDesktop
         internal int ShortScreen;
         private readonly Key languages;
         private readonly ContextMenuStrip languageMenu;
+        private readonly Key personality;
+        private readonly ContextMenuStrip personalityMenu;
+        private readonly ToolStripMenuItem personalityNote;
         private readonly Slider volume;
         private readonly Readout volumeName;
         private readonly Slider pitchSlider;
@@ -423,6 +426,17 @@ namespace CapriDesktop
             // 2077's settings screen (Lachy, 30 Oct). A section's own buttons, like Layers, sit at the right of its band.
             const int c = Column;
             Section("YOU >", 0, 58);
+            // Lucy brings personality.md back (Capri 0.7.6 dropped it): its menu says which personality she's using, opens it and resets it.
+            personalityMenu = Dropdown();
+            personalityNote = Choice(Brain.HerDefault, false, null);
+            personalityNote.Enabled = false;
+            personalityMenu.Items.Add(personalityNote);
+            personalityMenu.Items.Add(new ToolStripSeparator());
+            personalityMenu.Items.Add(Choice("Edit personality.md", false, delegate { capri.OpenPersonality(); }));
+            personalityMenu.Items.Add(Choice("Reset to her default", false, delegate { capri.ResetPersonality(); }));
+            personality = Make("Personality", 128, 55, 100, 20, delegate { ShowPersonality(); personalityMenu.Show(personality, new Point(0, personality.Height)); });
+            personality.Chevron = true;
+            personality.AccessibleName = "Her personality: edit or reset personality.md";
             Make("Open her notes", 236, 55, 120, 20, delegate { capri.OpenNotes(); }).AccessibleName = "Open her notes: me.md, her notes about you";
             Named("Language", 0, 82);
             languageMenu = Dropdown();
@@ -1232,10 +1246,18 @@ namespace CapriDesktop
             repliesName.Text = Lengths[replies.Value];
             recall.Value = Math.Max(0, Array.IndexOf(Recalls, capri.Recall));
             recallName.Text = Lengths[recall.Value];
+            ShowPersonality();
             perchFps.Value = Math.Max(0, Array.IndexOf(Companion.PerchRates, capri.PerchFps));
             ShowPerch();
             syncing = false;
         }
+
+        // Says which personality she's using, and why it's her default when personality.md is missing, empty or can't be read.
+        internal void ShowPersonality() { personalityNote.Text = Brain.PersonalityNote; }
+
+        internal string PersonalityShown { get { return personalityNote.Text; } }
+
+        internal void PickPersonality(string text) { foreach (ToolStripItem item in personalityMenu.Items) if (item.Text == text) item.PerformClick(); }
 
         // Past 30 fps she draws her perch more often, so the HABITS line says it costs more.
         private void ShowPerch()
