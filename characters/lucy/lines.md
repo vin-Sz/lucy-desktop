@@ -1,7 +1,7 @@
 # Lucy's lines
 
 Lines Capri says that are written straight into the code, with a Lucy version for each.
-Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.6 and may move after an update. This entire folder is to avoid merging conflicts with the update.
+Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.7 and may move after an update. This entire folder is to avoid merging conflicts with the update.
 
 ## Netrunner tags (replace [SIGNAL CORRUPTED])
 
@@ -16,7 +16,7 @@ Draft: the app doesn't use this file yet. Locations are from capri-desktop 0.7.6
 | Where | Capri | Lucy |
 | --- | --- | --- |
 | `Brain.cs` `Declined` | [SIGNAL CORRUPTED] Lost that one in the static. Ask me something else? | [CONNECTION LOST] Dropped that one somewhere in the Net. Ask me something else? |
-| `Brain.cs` (end of the error messages, about line 1875) | [SIGNAL CORRUPTED] Something in my head just sparked. Try me again? | [DAEMON INTERRUPT] Something got in my head for a second. Try me again? |
+| `Brain.cs` (end of the error messages, about line 1906) | [SIGNAL CORRUPTED] Something in my head just sparked. Try me again? | [DAEMON INTERRUPT] Something got in my head for a second. Try me again? |
 
 ### No longer in the app (since 0.7.6)
 
@@ -44,10 +44,21 @@ Capri used to have ready-made safety replies (`Safety.Deflect`, `Safety.Refusals
 | Hey, you. Having fun? | Hey. Having fun? |
 | Surprise. I got bored without you. | Got quiet without you. |
 
+## Halloween (new in 0.7.7, `Brain.cs` `HalloweenLines`)
+
+On 31 October her startup hello is one of these, or she says one once that day if she's already running. The smoke test checks each line contains "Happy Halloween".
+
+| Capri | Lucy |
+| --- | --- |
+| Happy Halloween, choom! | Happy Halloween, choom. |
+| Happy Halloween, choom. Trick or treat? | Happy Halloween. Trick or treat, choom? |
+| Boo! Happy Halloween, choom. | [ICE DETECTED] ...kidding. Happy Halloween, choom. |
+
 ## Other things to check later
 
 - `Talk.cs` `Speaker = "CAPRI: "` (twice): the name shown in her chat log → `LUCY: `
 - **"Hey Capri"** (new in 0.7.6, off by default): the wake word. The phrase it listens for is `Phrases` in `WakeWord` in `app/Ears.cs` (`"▁HE Y ▁CA P RI"`, the speech model's word pieces). "Hey Lucy" needs new pieces from the model's own `bpe.model`, and `Boost` and `Threshold` were tuned for "Hey Capri", so it needs testing again. The name "Hey Capri" also shows in the SECURITY window and messages
 - `assets/voice/hello-morning.wav`, `hello-late.wav`, `hello-miss.wav`: her spoken greetings, need new recordings or removing
 - `Hands.cs` `MoonSong` is already "I Really Want to Stay at Your House". It fits Lucy perfectly, keep it
+- **Donations** (new in 0.7.7, in `DefaultPersonality` and `Computer.Playing`): she thanks donors, calls them a good boy, and sends anyone asking about donating to `ko-fi.com/lachysdev`. Lucy has no tip jar of her own, so pointing at Lachy's Ko-fi is fair; just keep the smoke test's check for those phrases in step if the wording changes
 - The tests check some of these lines word for word, so changing a line also means changing its test

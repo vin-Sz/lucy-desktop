@@ -23,15 +23,18 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 - [ ] Try the personality in the real app and tweak it. Since 0.7.6 there's no Edit personality button, so this means pasting it into `DefaultPersonality` in `app/Brain.cs` and building
 
 - [x] Sync the big capri-desktop patch (0.7.6, 30 Oct) before changing any app code
+- [x] Sync capri-desktop 0.7.7 (30 Oct): lie-down set, perch talking frames, Halloween lines, donation lines
+- [x] A GitHub Action (`.github/workflows/sync-upstream.yml`) that merges capri-desktop into `main` when it updates
 
 **Step 2: art and voice**
 - [ ] Build script: build with `-Character lucy`, taking each file from this folder when it's there and Capri's otherwise, so sprites can be swapped one at a time
 - [x] Check the sprite list and sizes again after the patch: the perch is new (60 frames, narrower frames) and `perch_music` was added. `ART.md` and the templates are updated
+- [x] Again for 0.7.7: `perch_talk` and seven `laydown_*` sheets (372 or 440 × 250 px). `ART.md` and the templates are updated
 - [ ] Lucy's art, voice and icon
 
 **Step 3: text in the app**
 - [ ] A new `app/Character.cs` holding her personality and lines, with small one-line changes in `Brain.cs` pointing at it
-- [ ] Update the personality checks in the smoke test (`Capri.cs`): `todaysPersona` (a SHA-256 of the whole prompt) and its length, 5098, next to it, and the check a little before it that looks for Capri phrases like "a playful chaos gremlin". Also any tests that check lines word for word
+- [ ] Update the personality checks in the smoke test (`Capri.cs`): `todaysPersona` (a SHA-256 of the whole prompt) and its length, 5659 since 0.7.7, next to it, and the check a little before it that looks for Capri phrases like "a playful chaos gremlin". Also any tests that check lines word for word
 - [ ] Leave `Safety` and `Machinery` in `Brain.cs` as they are: Lachy asks forks to keep her safety rules. `Safety` has a little Capri wording ("your chaos lives on the screen"); decide later whether that's fine for Lucy or worth asking Lachy about
 - [ ] "Hey Capri" → "Hey Lucy" (see `lines.md`)
 - [ ] Rename what you see from Capri to Lucy (window titles, menus, installer, messages), but not the internal code names
@@ -42,7 +45,7 @@ The folder is named `characters/lucy` so other characters (even Capri) could sit
 
 ## Notes
 
-- **Sprites** (capri-desktop 0.7.6): every animation is one row of frames, 384 px tall. Standing frames are 240 px wide; sitting (`perch_*`) frames are 196 or 288 px wide (see `ART.md`). Frame counts are set in `app/Capri.cs` (search `new Clip(`).
+- **Sprites** (capri-desktop 0.7.7): every animation is one row of frames, 384 px tall except lying down (250 px). Standing frames are 240 px wide; sitting (`perch_*`) frames are 196 or 288 px wide; lying (`laydown_*`) frames are 372 or 440 px wide (see `ART.md`). Frame counts are set in `app/Capri.cs` (search `new Clip(`).
 - **Personality** (since 0.7.6): there's no `personality.md` in the app and no Edit personality button any more. Her prompt is `DefaultPersonality` + `Safety` + `Machinery` in `app/Brain.cs`, all fixed in code, on Windows and on Mac/Linux.
 - **How the art gets in:** `ci/build-windows.ps1` packs `assets/sprites`, `assets/voice` and the icon into the .exe when building. The app doesn't read them from a folder.
-- **Syncing:** commit before syncing, and sync soon after each capri-desktop release while the differences are small. If the README conflicts, keep ours.
+- **Syncing:** the Sync upstream Action checks capri-desktop every 6 hours and merges it into `main` on its own. If the merge conflicts (usually the README), it opens an issue instead; then merge by hand, keeping our README. After a sync, check `ART.md`, `lines.md` and this file against what changed.

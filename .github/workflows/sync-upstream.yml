@@ -1,0 +1,93 @@
+# Merges lachydotmcg/capri-desktop into main whenever it has new commits. The README always keeps Lucy's version.
+# Any other conflict stops the sync and opens an issue, so it can be merged by hand.
+#
+# Upstream sometimes changes its own workflow files, and GitHub won't let the built-in token push those. Add a
+# fine-grained token with Contents and Workflows (read and write) on this repo as the SYNC_TOKEN secret to cover that.
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'vin-Sz/lucy-desktop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Merge capri-desktop
+        id: merge
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git remote add upstream https://github.com/lachydotmcg/capri-desktop.git
+          git fetch --no-tags upstream main
+
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already up to date with capri-desktop."
+            exit 0
+          fi
+
+          new=$(git log --oneline HEAD..upstream/main | wc -l)
+          tip=$(git rev-parse --short upstream/main)
+          git merge --no-ff --no-commit upstream/main || true
+
+          conflicts=$(git diff --name-only --diff-filter=U)
+          for file in $conflicts; do
+            if [ "$file" = "README.md" ]; then
+              git checkout --ours README.md
+              git add README.md
+            fi
+          done
+
+          left=$(git diff --name-only --diff-filter=U)
+          if [ -n "$left" ]; then
+            git merge --abort
+            echo "conflicts<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$left" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "tip=$tip" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          version=$(git show upstream/main:site/release.json 2>/dev/null | grep -oP '"tag_name"\s*:\s*"v?\K[^"]+' || true)
+          git commit -F - <<EOF
+          Merge capri-desktop${version:+ $version} from upstream
+
+          Brings in lachydotmcg/capri-desktop up to $tip ($new new commits).
+          README keeps the Lucy fork's version.
+          EOF
+          git push origin HEAD:main
+          echo "merged=$tip" >> "$GITHUB_OUTPUT"
+
+      - name: Open an issue for a conflict
+        if: steps.merge.outputs.conflicts != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFLICTS: ${{ steps.merge.outputs.conflicts }}
+          TIP: ${{ steps.merge.outputs.tip }}
+        run: |
+          title="Upstream sync needs a hand"
+          body=$(printf 'Merging capri-desktop up to %s conflicts in:\n\n%s\n\nMerge it by hand:\n\n```bash\ngit fetch upstream\ngit merge upstream/main\n```\n\nThe sync tries again every 6 hours and closes nothing on its own; close this once main has the merge.' "$TIP" "$(echo "$CONFLICTS" | sed 's/^/- `/; s/$/`/')")
+          existing=$(gh issue list 2>/dev/null --state open --search "\"$title\" in:title" --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body" || true
+          else
+            gh issue create --title "$title" --body "$body" || true
+          fi
+          echo "::error::Merging capri-desktop conflicts in: $(echo $CONFLICTS)"
+          exit 1
